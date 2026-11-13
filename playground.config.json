@@ -1,9 +1,23 @@
 {
-  "title": "Agda Playground",
-  "library": "playground",
+  "title": "Programming and Proving in Agda",
+  "library": "notes",
   "modulePrefix": "",
   "playgroundSource": "",
-  "source": "https://github.com/jespercockx/agda-playground",
+  "source": "https://github.com/jespercockx/agda-lecture-notes",
+  "groups": {
+    "content": "Library",
+    "notes": "Programming and Proving in Agda"
+  },
+  "order": {
+    "notes": [
+      "Intro",
+      "DependentTypes",
+      "CurryHoward",
+      "EquationalReasoning",
+      "Unicode",
+      "FurtherReading"
+    ]
+  },
   "runtime": {
     "repository": "jespercockx/agda-als-dist",
     "release": "v2.8.0-als-e6541f8",

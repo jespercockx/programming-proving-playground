@@ -7,6 +7,7 @@
   import { Compartment, Prec } from "@codemirror/state";
   import { EditorView, keymap } from "@codemirror/view";
   import { marked } from "marked";
+  import markedFootnote from "marked-footnote";
   import {
     ArrowLeft,
     ArrowRight,
@@ -42,6 +43,8 @@
     literateAgdaLanguage,
   } from "$lib/codemirror/agda-language";
   import { agdaSupport } from "$lib/agda";
+
+  marked.use(markedFootnote());
 
   const DEFAULT_SOURCE = `module Main where
 
