@@ -319,6 +319,22 @@ src/                     the SvelteKit app
 static/                  generated and static assets
 .github/workflows/       CI and GitHub Pages deploy
 ```
+
+## Keeping up with the template
+
+This repository is built on the upstream history of the
+[Agda Playground](https://github.com/jespercockx/agda-playground) template, so
+template updates can be rebased in directly. The template is configured as the
+`upstream` remote:
+
+```sh
+git fetch upstream
+git rebase upstream/master
+```
+
+If `package.json` changed, reinstall dependencies (`npm ci`) and verify with
+`npm run check && npm run build`.
+
 ## Origins and credits
 
 The browser-native Agda playground began as
