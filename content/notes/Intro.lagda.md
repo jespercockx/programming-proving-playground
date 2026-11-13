@@ -3,7 +3,6 @@ title: An introduction to Agda for Haskell programmers
 ---
 
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
 module notes.Intro where
 ```
 

@@ -3,7 +3,6 @@ title: Dependent types
 ---
 
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
 module notes.DependentTypes where
 
 open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; not)

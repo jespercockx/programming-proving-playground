@@ -3,7 +3,6 @@ title: The Curry–Howard correspondence
 ---
 
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
 module notes.CurryHoward where
 
 open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; true; false;

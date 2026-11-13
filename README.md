@@ -302,11 +302,42 @@ one long-lived interaction process.
 
 ## Hosting elsewhere
 
-The build is a plain static site (`build/`), so any static host works. The only
-requirement is that pages are cross-origin isolated, either by sending the two
-COOP/COEP headers or by relying on the bundled `coi-serviceworker.js`. To deploy
-under a subpath, build with `BASE_PATH=/<subpath>`; all runtime URLs are
-base-aware.
+The build is a plain static site (`build/`), so any static host works, but the
+host must satisfy two requirements:
+
+1. **Cross-origin isolation.** The Agda runtime needs `SharedArrayBuffer`, which
+   the browser only exposes on a cross-origin-isolated page. Either send the two
+   headers on every response:
+
+   ```
+   Cross-Origin-Opener-Policy: same-origin
+   Cross-Origin-Embedder-Policy: require-corp
+   ```
+
+   or let the bundled `coi-serviceworker.js` add them. The service worker
+   approach requires **HTTPS** and causes **one automatic reload on the first
+   visit**; if it cannot register, the app hangs on "Starting Agda". The
+   repository ships `static/_headers` with the two headers for hosts that read a
+   `_headers` file (Netlify, Cloudflare Pages); most other hosts need them set
+   in their config, e.g.
+
+   ```nginx
+   add_header Cross-Origin-Opener-Policy same-origin always;
+   add_header Cross-Origin-Embedder-Policy require-corp always;
+   ```
+
+2. **A subpath build.** To serve the site below the domain root, build with
+   `BASE_PATH=/<subpath>` and serve `build/` at that path; all runtime URLs are
+   base-aware.
+
+Recommended, not required:
+
+- Enable gzip/brotli. `als-2.8ext.wasm` is 33 MB uncompressed (10 MB gzipped);
+  the app prefers the `.wasm.gz` copy, so just make sure `.gz` files are served.
+- Cache `_app/immutable/*` and the runtime artifacts for a long time (they carry
+  content hashes), but **not** `/content/manifest.json`, `index.html`, or
+  `coi-serviceworker.js` — they are fetched without a cache-buster.
+- No server-side routing or rewrites are needed; it is a single prerendered page.
 
 ## Repository layout
 

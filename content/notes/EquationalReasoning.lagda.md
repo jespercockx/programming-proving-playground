@@ -3,7 +3,6 @@ title: Equational reasoning in Agda
 ---
 
 ```agda
-{-# OPTIONS --allow-unsolved-metas #-}
 module notes.EquationalReasoning where
 
 open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; true; false;

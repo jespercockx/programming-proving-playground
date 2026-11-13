@@ -1,0 +1,8 @@
+# Cross-origin isolation headers, for static hosts that read a `_headers` file
+# (Netlify, Cloudflare Pages). The Agda runtime needs SharedArrayBuffer, which
+# the browser only exposes on a cross-origin-isolated page. If your host sets
+# these itself, this file is redundant; if it cannot, the bundled
+# `coi-serviceworker.js` supplies them instead (over HTTPS, with one reload).
+/*
+  Cross-Origin-Opener-Policy: same-origin
+  Cross-Origin-Embedder-Policy: require-corp
