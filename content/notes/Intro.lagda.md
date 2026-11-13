@@ -50,19 +50,6 @@ On the surface level, Agda code looks quite similar to Haskell code,
 with some small syntactic differences. However, beneath the hood are a
 number of notable differences:
 
-> **Historical note.**  Agda's type system is based on
-> *dependent type theory*, a formal language invented by the
-> Swedish philosopher Per Martin-Löf. His original motivation was to
-> provide a new foundation for *constructive mathematics*, a kind
-> of mathematics where each proof of existence contains an algorithm to
-> actually construct the object that is proven to exist. For example, a
-> constructive proof of "there exists a prime number greater than
-> 1000" provides an algorithm to actually produce such a number. Later
-> on, it was discovered that Martin-Löf's type theory is also well
-> suited to implement computer proof assistants (such as the Coq system)
-> and programming languages with built-in support for verification (such
-> as Agda).
-
 -  Types in Agda are *first-class values*: basic types such as
   `Nat` and `Bool` are themselves values of another type called
   `Set`. Values of type `Set` can be passed around as arguments
@@ -80,6 +67,19 @@ number of notable differences:
   propositions*. Using these types, Agda can also be used as a
   *proof assistant* for writing and checking mathematical proofs.
 
+> **Historical note.**  Agda's type system is based on
+> *dependent type theory*, a formal language invented by the
+> Swedish philosopher Per Martin-Löf. His original motivation was to
+> provide a new foundation for *constructive mathematics*, a kind
+> of mathematics where each proof of existence contains an algorithm to
+> actually construct the object that is proven to exist. For example, a
+> constructive proof of "there exists a prime number greater than
+> 1000" provides an algorithm to actually produce such a number. Later
+> on, it was discovered that Martin-Löf's type theory is also well
+> suited to implement computer proof assistants (such as the Coq system)
+> and programming languages with built-in support for verification (such
+> as Agda).
+
 The goal of these lecture notes is *not* to provide a full guide to using
 Agda as a full-featured programming language. Instead, we use Agda as a vehicle
 to study the basic building blocks that make up a dependently typed functional
@@ -92,75 +92,7 @@ much easier to get these definitions from the library instead!
 
 ## Installing Agda
 
-To follow the rest of these notes, it is recommended that you use Agda
-version 2.6.0 or later (the latest version at the time of writing is 2.8.0). There are several ways to install Agda.
-
-- **Download a precompiled binary.**  You can download an Agda binary from [github.com/agda/agda/releases](https://github.com/agda/agda/releases) for the following systems:
-  - **Linux**  [Agda-v2.8.0-linux.tar.xz](https://github.com/agda/agda/releases/download/v2.8.0/Agda-v2.8.0-linux.tar.xz)
-  - **MacOS (ARM)**  [Agda-v2.8.0-macOS-arm64.tar.xz](https://github.com/agda/agda/releases/download/v2.8.0/Agda-v2.8.0-macOS-arm64.tar.xz)
-  - **MacOS (x64)**  [Agda-v2.8.0-macOS-x64.tar.xz](https://github.com/agda/agda/releases/download/v2.8.0/Agda-v2.8.0-macOS-x64.tar.xz)
-  - **Windows**  [Agda-v2.8.0-win64.zip](https://github.com/agda/agda/releases/download/v2.8.0/Agda-v2.8.0-win64.zip)
-    Unpack the binary to a directory on your system path (e.g. "`/usr/bin`" on Linux and MacOS or "`C:\Windows\system32`" on Windows).
-    Before the first usage, you need to run "`agda --setup`" once from a terminal.
-- **Ubuntu package.**  On Ubuntu Linux and similar systems
-    (including
-    WSL[^2]
-    on Windows) you can install a binary release of Agda by running
-    "`sudo apt install agda`".
-- **Installation from source using Cabal or Stack.**  You can also
-    install Agda from source using Cabal or Stack.[^3]  You
-    can compile and install Agda by running `cabal install
-      Agda` if using Cabal, or `stack install Agda` if using
-    Stack.  This step will take a long time and a lot of memory to
-    complete, and use up 4-5 GB of disk space for a fresh install.
-
-To write and edit Agda code, we recommend Visual Studio Code with the
-`agda-mode` extension.[^4]
-Other IDEs with support for Agda are
-Emacs, Neovim, and Vim.
-
-You can test to see if you've installed Agda correctly by creating a file
-called `hello.agda` with these lines:
-
-
-```agda
-data Greeting : Set where
-  hello : Greeting
-
-greet : Greeting
-greet = hello
-```
-
-
-Open this file in VS Code and press the key combination
-`Ctrl+c` followed by `Ctrl+l` (for "load file"). You
-should see a new frame titled Agda with the message `*All
-Done*`, and the code should be highlighted.[^5]
-
-**Troubleshooting.**
-If loading the file does not work, you might have to change the
-configuration of the extension.
-
--  `Connection: Agda version`: set this to the name of the Agda executable (usually just `agda`).
--  `Connection: Paths`: set this to the full path of the Agda executable (e.g. `/usr/bin/agda` or `C:\Windows\system32\agda`).
--  `Connection: Download Policy`: set this to "No, and don't ask again".
-
-Once you have loaded an Agda file, there is a number of other commands that
-can be used to query the typechecker. Here are two that are used very often:
-
-- **Deduce type (`Ctrl+c Ctrl+d`)**  This command will ask you
-  for an expression, for which it will then try to infer the type. For
-  example, running this command and entering `hello` will
-  return the inferred type `Greeting`.
-- **Normalize expression (`Ctrl+c Ctrl+n`)**  This command will ask you
-  for an expression, which it will evaluate as far as possible. For
-  example, running this command and entering `greet` will
-  return the fully evaluated term `hello`.
-
-Since there is no syntactic difference between values, functions, and types in
-Agda, it can be difficult at first to determine what kind of expression you are
-dealing with. If you run into such a situation, try first to predict its type
-and normal form, and then use the commands above to test your prediction.
+You do not need to install Agda to use these notes: all the code runs in your browser. If you would rather install it locally, see the [Agda user manual](https://agda.readthedocs.io/).
 
 ## Syntactic differences with Haskell
 
@@ -175,12 +107,12 @@ to indicate that `b` is a boolean.
   `Bool -> Bool` and `λ x → x` instead of
   `\ x -> x`. It is also allowed to use unicode
   symbols in names of definitions and variables. For example, we can
-  define a function that is named √.[^6]
+  define a function that is named √.[^2]
 - **Naming**  In Agda there is no syntactic difference between an
   expression and a type. As a consequence, there are no restrictions
   on what names have to start with a small letter or a capital
   letter. In addition, almost all ascii and unicode
-  characters[^7] can be used as part of a name. As a
+  characters[^3] can be used as part of a name. As a
   convention, names of functions, constructors, and variables in Agda
   code usually start with a small letter, while names of both type
   constructors and type variables usually start with a capital
@@ -189,9 +121,6 @@ to indicate that `b` is a boolean.
 - **Operators**  To refer to the name of an operator such as + in isolation,
 Agda uses underscores (as opposed to parentheses in Haskell). For example, we
 have `_+_ : Nat → Nat → Nat`.
-> **Warning.**  Agda will interpret
-> all names with underscores as operators, so the use of underscores in
-> non-operator names is strongly discouraged.
 - **Whitespace**  Due to the liberal naming rules, Agda requires the use of
 spaces before and after each operator. For example, Agda requires you to write
 `1 + 1` instead of `1+1`. In fact, `1+1` is a valid name
@@ -206,6 +135,10 @@ Agda as `1 :: 2 :: 3 :: []`.
 tuples.  Instead, the type `A × B` is defined as a datatype
 with one constructor `_,_`. For example, we have `(6 , true) : Nat × Bool`.
 
+> **Warning.**  Agda will interpret
+> all names with underscores as operators, so the use of underscores in
+> non-operator names is strongly discouraged.
+
 ## Data types and pattern matching
 
 Like in Haskell, the core part of any Agda program consists of declarations of
@@ -218,13 +151,11 @@ everything from scratch. In this introduction, we will do the latter.
 
 Let's define our first datatype in Agda: the type of (unary) natural numbers:
 
-
 ```agda
 data Nat : Set where
   zero  : Nat
   suc   : Nat → Nat
 ```
-
 
 **Natural number literals.**  By default, this definition of natural numbers
 forces us to write out the numbers as `zero`, `suc zero`,
@@ -232,11 +163,9 @@ forces us to write out the numbers as `zero`, `suc zero`,
 for decimal numbers, which we can activate by writing the following
 pragma below the definition of `Nat`:
 
-
 ```agda
 {-# BUILTIN NATURAL Nat #-}
 ```
-
 
 Once we have activated this pragma, Agda will interpret the numbers
 `0`, `1`, `2`,  using the constructors `zero` and `suc`.
@@ -258,13 +187,11 @@ must have a type - including types themselves - and `Set` is the type of
 Next, we define addition `_+_` on natural numbers by pattern
 matching as follows:
 
-
 ```agda
 _+_ : Nat → Nat → Nat
 zero     + y  = y
 (suc x)  + y  = suc (x + y)
 ```
-
 
 Just like in Haskell, a definition by pattern matching consists of a *type signature* followed by a list of
 *clauses* or equalities. Also like in Haskell, functions can make
@@ -278,7 +205,6 @@ Just like in Haskell, a definition by pattern matching consists of a *type signa
 halve : Nat → Nat
 halve n = {!!}
 ```
-
 
 To test our definition, we first load the file in VS Code
 (`Ctrl+c Ctrl+l`) and then ask Agda to evaluate an expression
@@ -295,12 +221,10 @@ _*_ : Nat → Nat → Nat
 m * n = {!!}
 ```
 
-
 > **Exercise.** Define the type `Bool` with constructors
 > `true` and `false`, and define the functions for negation
 > `not : Bool → Bool`, conjunction `_&&_ : Bool → Bool → Bool`,
 > and disjunction `_||_ : Bool → Bool → Bool` by pattern matching.
-
 
 ```agda
 data Bool : Set where
@@ -314,7 +238,6 @@ _||_ : Bool → Bool → Bool
 x || y = {!!}
 ```
 
-
 ## Interactive programming in Agda
 
 One of the unique features of Agda is its support for
@@ -324,25 +247,21 @@ an incomplete definition with one or more *holes*, placeholders
 for code you haven't written yet. Holes are written in Agda code as a
 question mark `?` or the special string `{!!}`.
 
-
 ```agda
 not : Bool → Bool
 not b = {!  !}
 ```
 
-
 Agda can load a file even if it still contains holes. If you load the
 file (with `Ctrl+c Ctrl+l`), Agda will assign a number to the holes and give you
 some information about each one:
-
 
 ```text
 ?0 : Bool
 ```
 
-
 Once you have loaded a file with holes, there are various ways you can
-ask the Agda typechecker to help you through the use of shortcuts: [^8]
+ask the Agda typechecker to help you through the use of shortcuts: [^4]
 
 - **Get goal type and context (`Ctrl+c Ctrl+,`)**  This command
   will give you the type of the hole the cursor is currently in, as
@@ -401,12 +320,10 @@ returned and passed around as arguments. The type of `Nat` and
 `Bool` is called `Set` by Agda. For example, we can define an
 alias for `Nat` as follows:
 
-
 ```agda
 MyNat : Set
 MyNat = Nat
 ```
-
 
 This works just like the declaration `type MyNat = Nat` in
 Haskell: the type checker will treat the two types `Nat` and
@@ -416,12 +333,10 @@ The type `Set` is also used to implement polymorphic functions and
 datatypes in Agda. For example, we can define the polymorphic identity
 function `id` as follows:
 
-
 ```agda
 id : (A : Set) → A → A
 id A x = x
 ```
-
 
 The function `id` takes two arguments: a type A of type `Set`
 and an element x of type A. For example, `id Bool true`
@@ -447,12 +362,10 @@ Since writing out the type arguments each time becomes boring quickly,
 Agda also allows them to be declared *implicit* by using curly
 braces ``:
 
-
 ```text
 id : {A : Set} → A → A
 id x = x
 ```
-
 
 With this definition, we can simply write `id true` or
 `id zero` and Agda will infer the type automatically.
@@ -460,13 +373,11 @@ With this definition, we can simply write `id true` or
 As another example, `if/then/else` can simply be defined as a
 function in Agda:
 
-
 ```agda
 if_then_else_ : {A : Set} → Bool → A → A → A
 if true   then x  else y  = x
 if false  then x  else y  = y
 ```
-
 
 Note that the underscores _ in the name will make Agda recognize it
 as an operator, so we can write terms such as
@@ -474,8 +385,7 @@ as an operator, so we can write terms such as
 
 Just as we can define polymorphic functions, we can also define
 polymorphic datatypes by adding an argument of type `Set`. For
-example, the type of lists can be defined as follows: [^9]
-
+example, the type of lists can be defined as follows: [^5]
 
 ```agda
 data List (A : Set) : Set where
@@ -485,11 +395,9 @@ data List (A : Set) : Set where
 infixr 5 _::_
 ```
 
-
 Similarly, we can define the type of pairs as a polymorphic
 datatype. In Agda, the type of pairs is usually written as `A × B` in analogy of the notion of the product of two sets in
-mathematics.[^10] It is defined as follows:
-
+mathematics.[^6] It is defined as follows:
 
 ```agda
 data _×_ (A B : Set) : Set where
@@ -497,9 +405,7 @@ data _×_ (A B : Set) : Set where
 infixr 4 _,_
 ```
 
-
 We can define functions on pairs by pattern matching, for example:
-
 
 ```agda
 fst : {A B : Set} → A × B → A
@@ -509,13 +415,11 @@ snd : {A B : Set} → A × B → B
 snd (x , y) = y
 ```
 
-
 > **Exercise.** Implement the following Agda functions:
 >
 > -  `length : { A : Set } → List A → Nat`
 > -  `_++_ : { A : Set } → List A → List A → List A`
 > -  `map : {A B : Set} → (A → B) → List A → List B`
-
 
 ```agda
 length : {A : Set} → List A → Nat
@@ -528,11 +432,9 @@ map : {A B : Set} → (A → B) → List A → List B
 map f xs = {!!}
 ```
 
-
 > **Exercise.** Implement the type `Maybe A` with two
 > constructors `just : A → Maybe A` and `nothing : Maybe A`. Next, implement the function `lookup : { A : Set } → List A → Nat → Maybe A` that returns the
 > element at the given position in the list.
-
 
 ```agda
 data Maybe (A : Set) : Set where
@@ -542,7 +444,6 @@ data Maybe (A : Set) : Set where
 lookup : {A : Set} → List A → Nat → Maybe A
 lookup xs n = {!!}
 ```
-
 
 ## Totality checking
 
@@ -568,7 +469,6 @@ In contrast, Agda is a *total language*, i.e. Agda functions are
 Let's look at some examples. Suppose we write an incomplete definition by
 pattern matching:
 
-
 ```text
 foo : Bool → Bool
 foo true = false
@@ -578,9 +478,7 @@ foo true = false
 --     foo false
 ```
 
-
 Then Agda highlights the definition and gives us an error:
-
 
 ```text
 Incomplete pattern matching for foo. Missing cases:
@@ -588,9 +486,7 @@ Incomplete pattern matching for foo. Missing cases:
 when checking the definition of foo
 ```
 
-
 Likewise, if we write a non-terminating definition:
-
 
 ```text
 bar : Nat → Nat
@@ -603,9 +499,7 @@ bar x = bar x
 --     bar x
 ```
 
-
 Then Agda also highlights the definition and gives us an error:
-
 
 ```text
 Termination checking failed for the following functions:
@@ -613,7 +507,6 @@ Termination checking failed for the following functions:
 Problematic calls:
   bar x
 ```
-
 
 > **Limitations of coverage and termination checking.**
 > In general, coverage checking and termination checking are undecidable
@@ -668,14 +561,9 @@ coverage checker to check completeness of functions by pattern
 matching and a termination checker to check termination of recursive
 functions.
 
-
 [^1]: For example, a type system can prevent the floating point number `1.0` from being interpreted as a memory address.
-[^2]: [learn.microsoft.com/en-us/windows/wsl/install](https://learn.microsoft.com/en-us/windows/wsl/install)
-[^3]: These tools can be installed using GHCup, which you can find at [haskell.org/ghcup](https://www.haskell.org/ghcup/).
-[^4]: You can get Visual Studio Code from [code.visualstudio.com](https://code.visualstudio.com/). To install an extension, click the Extensions button on the left, enter the name of the extension, and click "install".
-[^5]: In this introduction to Agda we will only use the interactive mode of Agda, which acts as a type checker and interpreter similar to `ghci` for Haskell. Agda also supports several backends for compilation, including a GHC backend and a JavaScript backend. A full "Hello, world" example for creating an executable from your Agda code can be found at [agda.readthedocs.io/en/v2.6.3/getting-started/hello-world.html](https://agda.readthedocs.io/en/v2.6.3/getting-started/hello-world.html).
-[^6]: Many unicode characters can be entered easily using LaTeX syntax when using the Agda mode for VS Code. For example, when you type `\to` it will be replaced by →, and `\lambda` is replaced by λ. A full list of the unicode characters used in these lecture notes and how to input them can be found in the appendix.
-[^7]: The exceptions are the symbols `.;{}()"`.
-[^8]: When you have edited your code in some way and you want to run one of these commands, always remember to first load the file using `Ctrl+c Ctrl+l`.
-[^9]: In order to write expressions such as `1 :: 2 :: 3 :: []` (as opposed to `1 :: (2 :: (3 :: []))`), we also need to tell Agda that `::` is right associative. We can do so as follows: `infixr 5 _::_`
-[^10]: To write `×`, type `\times`.
+[^2]: Many unicode characters can be entered easily using LaTeX syntax when using the Agda mode for VS Code. For example, when you type `\to` it will be replaced by →, and `\lambda` is replaced by λ. A full list of the unicode characters used in these lecture notes and how to input them can be found in the appendix.
+[^3]: The exceptions are the symbols `.;{}()"`.
+[^4]: When you have edited your code in some way and you want to run one of these commands, always remember to first load the file using `Ctrl+c Ctrl+l`.
+[^5]: In order to write expressions such as `1 :: 2 :: 3 :: []` (as opposed to `1 :: (2 :: (3 :: []))`), we also need to tell Agda that `::` is right associative. We can do so as follows: `infixr 5 _::_`
+[^6]: To write `×`, type `\times`.

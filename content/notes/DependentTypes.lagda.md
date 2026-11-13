@@ -6,7 +6,7 @@ title: Dependent types
 {-# OPTIONS --allow-unsolved-metas #-}
 module notes.DependentTypes where
 
-open import Prelude hiding (Σ)
+open import solutions.Prelude hiding (Σ)
 ```
 
 Dependent types are types that can refer to --- or *depend on* ---
@@ -23,17 +23,13 @@ The prototypical example of a dependent type is the type of
 *vectors* `Vec A n`. This type contains lists of exactly n
 elements of type A. For example:
 
-
 ```agda
 data Vec (A : Set) : Nat → Set where
   []    : Vec A 0
   _::_  : {n : Nat} → A → Vec A n → Vec A (suc n)
 
 infixr 5 _::_
-```
 
-
-```agda
 myVec1 : Vec Nat 5
 myVec1 = 1 :: 2 :: 3 :: 4 :: 5 :: []
 
@@ -43,7 +39,6 @@ myVec2 = not :: (λ x → x) :: []
 myVec3 : Vec Nat 0
 myVec3 = []
 ```
-
 
 > **Overloading of constructors.**  Agda allows us to use
 > the same name for the constructors of different datatypes, for example
@@ -58,13 +53,11 @@ allowed to depend on the inputs of the function. For example, we can
 implement a function `zeroes` that takes as input a number n,
 and produces a vector of zeroes of length n:
 
-
 ```agda
 zeroes : (n : Nat) → Vec Nat n
 zeroes zero     = []
 zeroes (suc n)  = 0 :: zeroes n
 ```
-
 
 The type `(n : Nat) → Vec Nat n` is called a *dependent
   function type* (a.k.a. a Π type) because the type of the output
@@ -86,17 +79,14 @@ downFrom : (n : Nat) → Vec Nat n
 downFrom n = {!!}
 ```
 
-
 We can also define functions where the type of one of the arguments
 depends on a previous input. For example:
-
 
 ```agda
 prepend : (n : Nat) → Bool
         → Vec Bool n → Vec Bool (suc n)
 prepend n b bs = b :: bs
 ```
-
 
 In fact, this is just a special case of the dependent function type,
 thanks to currying: the type of `prepend` can equivalently be
@@ -105,13 +95,11 @@ written as `(n : Nat) → (Bool → Vec Bool n → Vec Bool (suc n))`.
 If an argument to a function appears in the type of a later argument,
 we can make it implicit by using curly braces ``:
 
-
 ```text
 prepend : {n : Nat} → Bool
         → Vec Bool n → Vec Bool (suc n)
 prepend b bs = b :: bs
 ```
-
 
 This allows us for example to write
 `prepend true (false :: [])` instead of
@@ -127,14 +115,12 @@ of type `Set`.
 Let us now take a closer look at the `Vec` type[^1]
 itself. It is defined as follows:
 
-
 ```text
 data Vec (A : Set) : Nat → Set where
   []    : Vec A 0
   _::_  : {n : Nat} → A → Vec A n → Vec A (suc n)
 infixr 5 _::_
 ```
-
 
 > **Parameters vs. indices.**
 > You might wonder why the argument `(A : Set)` appears *before*
@@ -162,14 +148,12 @@ We can define functions on `Vec` just like we did for `List`, by
 pattern matching on the constructors. For example, we can define
 concatenation of vectors as follows:
 
-
 ```agda
 _++Vec_ : {A : Set} {m n : Nat}
         → Vec A m → Vec A n → Vec A (m + n)
 []         ++Vec ys  = ys
 (x :: xs)  ++Vec ys  = x :: (xs ++Vec ys)
 ```
-
 
 Pay close attention to the return type `Vec A (m + n)` of this
 function: it depends on both m and n!
@@ -180,12 +164,10 @@ we couldn't have done in Haskell. So let's try something a bit more
 ambitious and implement a function `head` that *only*
 accepts arguments of length at least one.
 
-
 ```agda
 head : {A : Set}{n : Nat} → Vec A (suc n) → A
 head (x :: xs) = x
 ```
-
 
 Note that this definition does not include a case for the empty vector
 `[]`. Yet it is still accepted by the coverage checker of Agda! This
@@ -202,7 +184,6 @@ tail : {A : Set} {n : Nat} → Vec A (suc n) → Vec A n
 tail xs = {!!}
 ```
 
-
 > **Exercise.** Implement the function `dotProduct : { n : Nat } → Vec Nat n → Vec Nat n → Nat` that calculates
 > the "dot product" (or scalar product) of two vectors. Note that the
 > type of the function enforces the two vectors to have the same length!
@@ -211,7 +192,6 @@ tail xs = {!!}
 dotProduct : {n : Nat} → Vec Nat n → Vec Nat n → Nat
 dotProduct xs ys = {!!}
 ```
-
 
 ## Looking up elements of a vector with the `Fin` type
 
@@ -230,15 +210,11 @@ numbers less than n, i.e. the numbers `0,1,2,…,(n-1)`.
 
 As an example, the type `Fin 3` contains three elements:
 
-
 ```agda
 data Fin : Nat → Set where
   zero  : {n : Nat} → Fin (suc n)
   suc   : {n : Nat} → Fin n → Fin (suc n)
-```
 
-
-```agda
 zero3 : Fin 3
 zero3 = zero
 
@@ -249,16 +225,13 @@ two3 : Fin 3
 two3   = suc (suc zero)
 ```
 
-
 However, if we try to define `three3 : Fin 3` as
 `suc (suc (suc zero))`, we get an error:
-
 
 ```text
 (suc _n_112) != zero of type Nat
 when checking that the expression zero has type Fin 0
 ```
-
 
 Without immediately going into the full details of this error message,
 we can already infer that Agda does not allow us to
@@ -281,7 +254,6 @@ to construct an element of type `Fin 0`.
 For type `Fin 1` the only possible constructor is `zero`, since
 using `suc` would require us to give an element of type `Fin 0`.
 
-
 ```text
                                                                 suc (suc (suc zero))
                                                 suc (suc zero)  suc (suc zero)
@@ -289,7 +261,6 @@ using `suc` would require us to give an element of type `Fin 0`.
                 zero            zero            zero            zero
 Fin 0           Fin 1           Fin 2           Fin 3           Fin 4
 ```
-
 
 *We can visualize the family of `Fin` types as an (infinite) triangle,
 where each type other than `Fin 0` has an element `zero`, and each type also
@@ -299,12 +270,10 @@ type in the family.*
 For now, let us define a safe variant of the `lookup` function
 using `Vec` and `Fin`. Here is the type signature:
 
-
 ```agda
 lookupVec : {A : Set} {n : Nat} → Vec A n → Fin n → A
 lookupVec xs i = {!!}
 ```
-
 
 Notice that the length n of the vector is also used as the upper
 bound for the position: this way we enforce that the position really is in
@@ -337,7 +306,6 @@ putVec : {A : Set} {n : Nat} → Fin n → A → Vec A n → Vec A n
 putVec i x xs = {!!}
 ```
 
-
 ## The dependent pair type
 
 Another important type for programming with dependent types is called
@@ -354,12 +322,10 @@ have type `Vec Bool 2`). In general, this type consists of pairs
 
 We can define the type `Σ` of dependent pairs as follows: [^5]
 
-
 ```agda
 data Σ (A : Set) (B : A → Set) : Set where
   _,_ : (x : A) → B x → Σ A B
 ```
-
 
 Note that the second parameter of `Σ` is not just a type in
 `Set` but a *function* of type `A → Set`, i.e. a dependent type.
@@ -367,19 +333,16 @@ Note that the second parameter of `Σ` is not just a type in
 We can see that `Σ` is indeed a generalization of the normal
 pair type where the type of the second component ignores its input: [^6]
 
-
 ```agda
 _×'_ : (A B : Set) → Set
 A ×' B = Σ A (λ _ → B)
 ```
-
 
 > **Exercise.** Implement functions converting back and forth
 > between `A × B` and `A ×' B`.
 
 We have the following functions for getting the individual components
 of a dependent pair:
-
 
 ```agda
 fstΣ : {A : Set}{B : A → Set} → Σ A B → A
@@ -389,7 +352,6 @@ sndΣ : {A : Set}{B : A → Set} → (z : Σ A B) → B (fstΣ z)
 sndΣ (x , y) = y
 ```
 
-
 Note that return type of `sndΣ` depends on the result of the
 first component `fstΣ`.
 
@@ -397,12 +359,10 @@ An important use of the `Σ` type is to *hide* some of
 the information in a type when it is not relevant. For example, we can
 hide the length of a vector by pairing it up with its length:
 
-
 ```agda
 List' : (A : Set) → Set
 List' A = Σ Nat (Vec A)
 ```
-
 
 > **Exercise.** Implement functions converting back and forth
 > between `List A` and `List' A`.
@@ -431,7 +391,6 @@ the empty vector `[]`.
   is empty.
 -  The dependent pair type `Σ A B` consists of pairs
 `(x,y)` where `x : A` and `y : B x`.
-
 
 [^1]: Technically, `Vec` is not a type but a *family* of types `Vec A n`. This is also the case for other indexed datatypes we will see later.
 [^2]: The position in a vector is often called an index, but we will refrain from calling it that to avoid confusion with the concept of an index for an indexed datatype.

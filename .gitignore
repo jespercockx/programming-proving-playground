@@ -33,6 +33,3 @@ vite.config.js.timestamp-*
 /static/content/*
 !/static/content/interfaces/
 !/static/content/interfaces/**
-
-# Locally type-checked interfaces for the content modules.
-content/**/*.agdai

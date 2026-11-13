@@ -26,7 +26,6 @@ module notes.FurtherReading where
 -  Andreas Abel: *Agda Equality* [^8] (lecture
   notes).
 
-
 [^1]: [agda.readthedocs.io/en](https://agda.readthedocs.io/en/)
 [^2]: [github.com/agda/agda-stdlib](https://github.com/agda/agda-stdlib)
 [^3]: [plfa.github.io](https://plfa.github.io/)

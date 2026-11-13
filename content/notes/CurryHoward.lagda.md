@@ -6,7 +6,7 @@ title: The Curry–Howard correspondence
 {-# OPTIONS --allow-unsolved-metas #-}
 module notes.CurryHoward where
 
-open import Prelude hiding (Either; left; right; cases; ⊤; tt; ⊥;
+open import solutions.Prelude hiding (Either; left; right; cases; ⊤; tt; ⊥;
   absurd; IsEven; zeroIsEven; sucsucIsEven; IsTrue; TrueIsTrue;
   _=Nat_; _≡_; refl; sym; trans; cong)
 ```
@@ -67,9 +67,6 @@ and (2) that Q implies R. We can summarize this proof of R as
 a proof of "P implies R", and g is a proof of "Q implies
 R" (i.e. `f : P → R` and `g : Q → R`). In conclusion, the
 proposition "P or Q" corresponds to the type `Either P Q` under the Curry-Howard correspondence.
-> **Exercise.** Define the `Either` type in Agda, and write
-> down a definition of the function `cases : { A B C : Set } → Either A B → (A → C) → (B → C) → C`.
-
 
 ```agda
 data Either (A B : Set) : Set where
@@ -81,7 +78,6 @@ cases (left x)   f  g  = f x
 cases (right y)  f  g  = g y
 ```
 
-
 - **Truth.**  A very basic proposition is "*true*", i.e. the
 proposition that always holds no matter what. Proving it is
 straightforward: we don't need to provide any assumptions. We could
@@ -90,12 +86,10 @@ the other hand, assuming "*true*" in a proof does not provide
 any new information. We can thus say that "*true*" corresponds
 to the unit type `⊤`[^1], which is defined as follows:
 
-
 ```agda
 data ⊤ : Set where
   tt : ⊤
 ```
-
 
 (This is very similar to the empty tuple type `()` in Haskell,
 which has a single inhabitant `() :: ()`.)
@@ -106,12 +100,10 @@ suggests that it should correspond to an *empty* type. In Agda,
 we can define the empty type `⊥`[^2] as a datatype with no
 constructors:
 
-
 ```agda
 data ⊥ : Set where
   -- no constructors
 ```
-
 
 On the other hand, if we assume we have a proof p of
 "*false*", then the principle of explosion (also known under
@@ -119,18 +111,20 @@ the latin name "ex falso quodlibet", or "from falsity follows
 anything") tells us we can can get a proof `absurd p` of any
 proposition we want. In Agda, we can define `absurd` as follows:
 
-
 ```agda
 absurd : {A : Set} → ⊥ → A
 absurd ()
 ```
-
 
 The special pattern `()` used to indicate this is called an
 *absurd pattern*, and the clause is called an *absurd
 clause*. Absurd patterns are used to indicate to Agda that there are
 no possible inputs of a given type, but we cannot just skip the clause
 since there would be no other clauses left.
+
+> **Exercise.** Define the `Either` type in Agda, and write
+> down a definition of the function `cases : { A B C : Set } → Either A B → (A → C) → (B → C) → C`.
+
 > **On empty types.**  Note that it is not possible to
 > define a real empty type in Haskell: even if we define a type with no
 > constructors, it is still inhabited by `undefined`, as well as
@@ -179,17 +173,14 @@ type. Let's look at some examples:
 -  The proposition "P implies P" translates to the Agda type
 `P → P`, which we can prove as follows:
 
-
 ```agda
 proof1 : {P : Set} → P → P
 proof1 p = p
 ```
 
-
 Note that this is simply the identity function `id`.
 -  The proposition "If (P implies Q) and (Q implies R)
 then (P implies R)" translates to the Agda type `(P → Q) × (Q → R) → (P → R)`, which we can prove as follows:
-
 
 ```agda
 proof2 : {P Q R : Set}
@@ -197,20 +188,17 @@ proof2 : {P Q R : Set}
 proof2 (f , g) = λ x → g (f x)
 ```
 
-
 Note that this is exactly (the uncurried version of) function composition.
 -  The proposition "If (P or Q) implies R then (P implies
 R) and (Q implies R)" translates to the Agda type
 `(Either P Q → R) → (P → R) × (Q → R)`, which
 we can prove as follows:
 
-
 ```agda
 proof3 : {P Q R : Set}
        → (Either P Q → R) → (P → R) × (Q → R)
 proof3 f = (λ x → f (left x)) , (λ y → f (right y))
 ```
-
 
 > **Exercise.** Translate the following propositions to Agda types
 > using the Curry-Howard correspondence, and prove them by implementing
@@ -251,7 +239,6 @@ double-negation : {P : Set} → (Either P (P → ⊥) → ⊥) → ⊥
 double-negation f = {!!}
 ```
 
-
 ## Predicate logic
 
 So far, we have used the Curry-Howard correspondence to view formulas
@@ -270,36 +257,30 @@ Let's start with the first question. Since --- according to Curry-Howard
 new data types. For example, we can define a type `IsEven n` that
 expresses whether n is even by pattern matching on n:
 
-
 ```agda
 data IsEven : Nat → Set where
   zeroIsEven : IsEven zero
   sucsucIsEven : {n : Nat} → IsEven n → IsEven (suc (suc n))
 ```
 
-
 Note that `IsEven` is an *indexed datatype*, just like
 `Vec` and `Fin` We can then easily prove that `6` is
 even:
-
 
 ```agda
 6-is-even : IsEven 6
 6-is-even = sucsucIsEven (sucsucIsEven (sucsucIsEven zeroIsEven))
 ```
 
-
 On the other hand, there is no way to prove that `7` is even:
 `IsEven 7` is an empty type. In fact, we can prove that
 `IsEven 7` is false by defining a function from this type to
 `⊥`:
 
-
 ```agda
 7-is-not-even : IsEven 7 → ⊥
 7-is-not-even (sucsucIsEven (sucsucIsEven (sucsucIsEven ())))
 ```
-
 
 Here we have to case split four times (using `Ctrl+c Ctrl+c`)
 before Agda can see that there is indeed no proof of
@@ -309,12 +290,10 @@ absurd pattern `()` to appear as an argument to a constructor.
 One predicate that is often quite useful is the predicate stating that
 a given `Bool` is `true`. It can be defined as follows:
 
-
 ```agda
 data IsTrue : Bool → Set where
   TrueIsTrue : IsTrue true
 ```
-
 
 **Defining properties as functions.**
 In this section we define new properties as
@@ -322,13 +301,11 @@ Agda data types. An alternative approach is to define new properties
 as *functions* that return a value of type `Set`. For example,
 an alternative definition of `IsTrue` could be given as:
 
-
 ```agda
 isTrue : Bool → Set
 isTrue true   = ⊤
 isTrue false  = ⊥
 ```
-
 
 This approach often results in proofs that are shorter, but less readable.  It
 is also less general, as some types (such as the identity type which
@@ -344,7 +321,6 @@ express many properties. For example, we can define the function
 and use it to
 prove that the list `1 :: 2 :: 3 :: []` has length `3`:
 
-
 ```agda
 _=Nat_ : Nat → Nat → Bool
 zero     =Nat  zero     = true
@@ -354,7 +330,6 @@ _        =Nat  _        = false
 length-is-3 : IsTrue (length (1 :: 2 :: 3 :: []) =Nat 3)
 length-is-3 = TrueIsTrue
 ```
-
 
 ## Universal and existential quantifiers
 
@@ -403,7 +378,6 @@ the table below.
 As an example, we can prove that for any natural number n,
 `double n` is even:
 
-
 ```agda
 double : Nat → Nat
 double zero     = zero
@@ -413,7 +387,6 @@ double-is-even : (n : Nat) → IsEven (double n)
 double-is-even zero     = zeroIsEven
 double-is-even (suc m)  = sucsucIsEven (double-is-even m)
 ```
-
 
 Let's take a closer look at the implementation of
 `double-is-even`. It makes use of two features we've used
@@ -439,29 +412,24 @@ proofs!
 
 As another example, we can prove that for any number n, `n =Nat n` is `true`:
 
-
 ```agda
 n-equals-n : (n : Nat) → IsTrue (n =Nat n)
 n-equals-n zero     = TrueIsTrue
 n-equals-n (suc m)  = n-equals-n m
 ```
 
-
 We can now also prove existential statements by making use of the
 `Σ` type. For example, we can prove that there exists a
 number n such that `n + n = 12` by exhibiting the number
 `6`:
-
 
 ```agda
 half-a-dozen : Σ Nat (λ n → IsTrue ((n + n) =Nat 12))
 half-a-dozen = 6 , TrueIsTrue
 ```
 
-
 As another example, we can prove that any number n is either `0` or
 the successor of another number m:
-
 
 ```agda
 zero-or-suc : (n : Nat)
@@ -470,7 +438,6 @@ zero-or-suc : (n : Nat)
 zero-or-suc zero     = left TrueIsTrue
 zero-or-suc (suc m)  = right (m , n-equals-n m)
 ```
-
 
 ## The identity type
 
@@ -492,7 +459,6 @@ single inhabitant `refl`, so it behaves like the unit type
 hence it behaves like the empty type `⊥`.  In Agda, we can
 define the identity type as follows:
 
-
 ```agda
 data _≡_ {A : Set} : A → A → Set where
   refl : {x : A} → x ≡ x
@@ -500,50 +466,41 @@ data _≡_ {A : Set} : A → A → Set where
 infix 4 _≡_
 ```
 
-
 Just like `Vec` and `IsEven`, `_≡_` is defined as an
 indexed datatype, this time with two indices of type A.
 
 With this type, we can for example prove that, indeed,
 `1+1=2`:[^6]
 
-
 ```agda
 one-plus-one : 1 + 1 ≡ 2
 one-plus-one = refl
 ```
 
-
  and that `0` is not equal to `1`:[^7]
-
 
 ```agda
 zero-not-one : 0 ≡ 1 → ⊥
 zero-not-one ()
 ```
 
-
 We can also prove facts about polymorphic types, for example that the
 `id` function always returns its input:
-
 
 ```agda
 id-returns-input : {A : Set} → (x : A) → id x ≡ x
 id-returns-input x = refl
 ```
 
-
 **Unit tests in Agda.**  A neat trick you can do in
 Agda is to write unit tests directly in your code by making use of the
 identity type. For example, we can write a test that `length (1 :: 2 :: [])` is `2` as follows:
-
 
 ```agda
 length-test1 :
   length (1 :: 2 :: []) ≡ 2
 length-test1 = refl
 ```
-
 
 When the Agda typechecker checks that `refl : length (1 :: 2 :: []) ≡ 2`, it will evaluate both sides
 to make sure they are indeed equal. So if anything changes and the
@@ -563,7 +520,6 @@ that x and y are indeed equal. For example, in the definition of
 must be equal, which is required for the right-hand side `refl` to be
 accepted at type `y ≡ x`.
 
-
 ```agda
 -- symmetry of equality
 sym : {A : Set} {x y : A} → x ≡ y → y ≡ x
@@ -577,7 +533,6 @@ trans refl refl = refl
 cong : {A B : Set} {x y : A} → (f : A → B) → x ≡ y → f x ≡ f y
 cong f refl = refl
 ```
-
 
 In general, there are two cases where we can match on a proof of `a ≡ b`:
 
@@ -612,7 +567,6 @@ x and y are equal. It is defined as an indexed datatype with a
 single constructor `refl : x ≡ x`. Other properties of
 equality such as symmetry, transitivity, and congruence can be proven
 by pattern matching on `refl`.
-
 
 [^1]: Unicode input for ⊤ is `\top`.
 [^2]: Unicode input for ⊥ is `\bot`.

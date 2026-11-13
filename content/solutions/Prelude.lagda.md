@@ -8,7 +8,7 @@ later chapters can import them. Solution code for the exercises lives
 here as well.
 
 ```agda
-module Prelude where
+module solutions.Prelude where
 ```
 
 ## Natural numbers

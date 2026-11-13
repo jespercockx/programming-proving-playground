@@ -5,8 +5,8 @@
   "playgroundSource": "",
   "source": "https://github.com/jespercockx/agda-lecture-notes",
   "groups": {
-    "content": "Library",
-    "notes": "Programming and Proving in Agda"
+    "notes": "Programming and Proving in Agda",
+    "solutions": "Solutions"
   },
   "order": {
     "notes": [
