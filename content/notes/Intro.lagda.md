@@ -7,6 +7,15 @@ title: An introduction to Agda for Haskell programmers
 module notes.Intro where
 ```
 
+Agda is both a strongly typed functional programming language with
+support for first-class *dependent types* and a *proof assistant*
+based on the Curry-Howard correspondence between propositions and types.
+The goal of these lecture notes is to introduce both these unique aspects
+of Agda to a general audience of functional programmers. It starts from
+basic knowledge of Haskell as taught in Hutton's book *Programming in
+Haskell*, and builds up to using equational reasoning to formally prove
+correctness of functional programs.
+
 Most programmers think of a type system as a set of rules that
 together prevent a class of basic runtime errors, such as using a
 string where the program expects an integer. This is indeed why type
