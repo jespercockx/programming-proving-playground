@@ -1,13 +1,29 @@
-# Agda Playground
+# Programming and Proving in Agda — interactive notes
 
-A template for building an interactive, type-checkable Agda website that runs
-entirely in the browser. Drop `.agda` or `.lagda.md` files into `content/`, and
-GitHub Pages serves an editor plus the Agda Language Server compiled to
-WebAssembly — code never leaves the visitor's machine.
+An interactive, type-checkable version of the lecture notes *Programming and
+Proving in Agda*. Every Agda block on the site is editable and is checked by the
+Agda Language Server, which is compiled to WebAssembly and runs locally in the
+visitor's browser — code never leaves the machine. The exercise solutions are
+removed and replaced with holes, so the notes double as an interactive workbook.
 
-This repository is the canonical starter. For a worked example with a full book
-of content, see
-[`jespercockx/plfa-playground`](https://github.com/jespercockx/plfa-playground).
+The site is built on the
+[Agda Playground](https://github.com/jespercockx/agda-playground) template, a
+SvelteKit static site with the Agda runtime as a WASI worker.
+
+## Content
+
+- `content/notes/` holds one `.lagda.md` chapter per section of the notes, plus
+  the two appendices, in reading order: `Intro`, `DependentTypes`, `CurryHoward`,
+  `EquationalReasoning`, `Unicode`, `FurtherReading`. Each declares
+  `module notes.<Name>`.
+- `content/solutions/Prelude.lagda.md` collects the definitions shared between
+  chapters together with the exercise solutions. It is shown as the **Solutions**
+  group after the notes, and chapters import it with
+  `open import solutions.Prelude using (…)`.
+
+`Intro` defines its own base types from scratch and imports nothing; the later
+chapters import from the Prelude. The notes use no standard library, so
+`interfaces` is set to `"none"`.
 
 ## What works
 
@@ -22,27 +38,26 @@ of content, see
 
 ## Quickstart
 
-1. Use this template (or clone it) into a new repository.
-2. Add your sources to `content/`. The starter ships with none, so the editor
-   opens an empty `Main.agda`.
-3. Run it locally:
+```sh
+npm ci
+npm run dev
+```
 
-   ```sh
-   npm ci
-   npm run dev
-   ```
+The first run downloads the pinned Agda 2.8.0 runtime (see
+[Runtime and distribution](#runtime-and-distribution)) and caches it under
+`.runtime-cache/`. Open <http://localhost:5173>; the content tree on the left
+lists the notes. Press Ctrl/Cmd+Enter to check the current module.
 
-   The first run downloads the pinned Agda runtime (see
-   [Runtime and distribution](#runtime-and-distribution)) and caches it under
-   `.runtime-cache/`. Open <http://localhost:5173> and press Ctrl/Cmd+Enter to
-   check the module.
+To publish on GitHub Pages, enable **Settings → Pages → Source = GitHub
+Actions** and **Settings → Actions → General → Workflow permissions = Read and
+write**. Every push to `master` that passes CI is deployed to
+`https://<owner>.github.io/<repository>/`.
 
-4. Enable GitHub Pages: **Settings → Pages → Source = GitHub Actions**, and
-   **Settings → Actions → General → Workflow permissions = Read and write**.
-   Every push to `master` that passes CI is deployed to
-   `https://<owner>.github.io/<repository>/`.
+> **Note.** The app remembers each chapter's source in `localStorage`, so after
+> editing a content file you may need to clear the site's storage (or use a
+> private window) before the new source appears.
 
-## Content
+## Authoring content
 
 Sources live in `content/` and are described by `playground.config.json`.
 
@@ -78,8 +93,9 @@ Agda derives a module's name from its path relative to the library root, so the
 path inside the project archive has to match the `module … where` header you
 write. `modulePrefix` sets the directory the content is placed under:
 
-- The starter sets `"modulePrefix": ""`, so `content/Main.agda` declares
-  `module Main where`.
+- This site sets `"modulePrefix": ""`, so `content/notes/Intro.lagda.md` declares
+  `module notes.Intro where` and `content/solutions/Prelude.lagda.md` declares
+  `module solutions.Prelude where`.
 - A project with modules named `mylib.Widget` would set `"modulePrefix": "mylib"`
   and place the file at `content/Widget.agda`.
 
@@ -278,7 +294,7 @@ one long-lived interaction process.
   cost of one automatic reload on the first visit.
 - **Per-site build size.** `interfaces.mode: "same-origin"` makes every
   deployment carry the full ~190 MB interface tree, even if no visitor imports
-  the standard library. The starter ships `none` (fetch nothing) to keep the
+  the standard library. This site ships `none` (fetch nothing) to keep the
   build small; `cross-origin` (host nothing, fetch from a CORS host) is the
   other alternative.
 - **Vite cap.** `vite` is held below 8.3 on purpose; see the comment in
@@ -295,7 +311,8 @@ base-aware.
 ## Repository layout
 
 ```text
-content/                 your Agda sources
+content/notes/           the chapter sources
+content/solutions/       Prelude (shared definitions and solutions)
 playground.config.json   site configuration
 scripts/                 content and runtime pipelines
 src/                     the SvelteKit app
