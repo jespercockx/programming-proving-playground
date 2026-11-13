@@ -6,9 +6,8 @@ title: The Curry–Howard correspondence
 {-# OPTIONS --allow-unsolved-metas #-}
 module notes.CurryHoward where
 
-open import solutions.Prelude hiding (Either; left; right; cases; ⊤; tt; ⊥;
-  absurd; IsEven; zeroIsEven; sucsucIsEven; IsTrue; TrueIsTrue;
-  _=Nat_; _≡_; refl; sym; trans; cong)
+open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; true; false;
+  []; _::_; length; _×_; _,_; Σ; id)
 ```
 
 As we said before, Agda is not just a programming language but

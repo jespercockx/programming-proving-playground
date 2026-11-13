@@ -6,7 +6,7 @@ title: Dependent types
 {-# OPTIONS --allow-unsolved-metas #-}
 module notes.DependentTypes where
 
-open import solutions.Prelude hiding (Σ)
+open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; not)
 ```
 
 Dependent types are types that can refer to --- or *depend on* ---

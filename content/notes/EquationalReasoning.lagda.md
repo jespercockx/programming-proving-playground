@@ -6,7 +6,9 @@ title: Equational reasoning in Agda
 {-# OPTIONS --allow-unsolved-metas #-}
 module notes.EquationalReasoning where
 
-open import solutions.Prelude hiding ([_]; take; drop)
+open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; true; false;
+  not; List; []; _::_; _++_; map; length; id; _≡_; refl; sym; trans; cong;
+  append-[]; append-assoc)
 ```
 
 In chapter 16 of his book *Programming in Haskell*, Hutton
