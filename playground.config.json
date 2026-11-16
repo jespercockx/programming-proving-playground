@@ -6,6 +6,7 @@
   "source": "https://github.com/jespercockx/agda-lecture-notes",
   "groups": {
     "notes": "Programming and Proving in Agda",
+    "coinduction": "Coinduction",
     "solutions": "Solutions"
   },
   "order": {
@@ -16,6 +17,20 @@
       "EquationalReasoning",
       "Unicode",
       "FurtherReading"
+    ],
+    "coinduction": [
+      "Programming",
+      "SizedTypes",
+      "Proving",
+      "CubicalBisimulation",
+      "DelayMonad",
+      "StreamProcessors",
+      "FormalLanguages",
+      "Cubical"
+    ],
+    "solutions": [
+      "Prelude",
+      "Coinduction"
     ]
   },
   "runtime": {

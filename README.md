@@ -16,14 +16,28 @@ SvelteKit static site with the Agda runtime as a WASI worker.
   the two appendices, in reading order: `Intro`, `DependentTypes`, `CurryHoward`,
   `EquationalReasoning`, `Unicode`, `FurtherReading`. Each declares
   `module notes.<Name>`.
+- `content/coinduction/` holds an independent three-part tutorial on
+  coinduction. The first two parts are `Programming` and `Proving`, with part
+  1's sized-types material split off into `SizedTypes` and part 2's cubical
+  material into `CubicalBisimulation` (`Cubical` holds the minimal path-type
+  definitions the latter imports); the third part lives in `case-studies/` as
+  `DelayMonad`, `StreamProcessors`, and `FormalLanguages`. Each declares
+  `module coinduction.<Name>` (or `coinduction.case-studies.<Name>`).
 - `content/solutions/Prelude.lagda.md` collects the definitions shared between
-  chapters together with the exercise solutions. It is shown as the **Solutions**
-  group after the notes, and chapters import it with
-  `open import solutions.Prelude using (…)`.
+  the notes chapters together with their exercise solutions.
+- `content/solutions/Coinduction.lagda.md` holds the coinductive definitions
+  (`Stream`, `Colist`, `_~_`, …) that `Proving`, `CubicalBisimulation`, and the
+  case studies import. The exercises themselves stay as holes in the chapters.
 
-`Intro` defines its own base types from scratch and imports nothing; the later
-chapters import from the Prelude. The notes use no standard library, so
-`interfaces` is set to `"none"`.
+Both solutions modules are shown in the **Solutions** group and are imported
+with `open import solutions.<Name> using (…)`. `Intro` defines its own base
+types from scratch and imports nothing; the coinduction chapters likewise define
+their types from scratch for the exposition, but the later chapters import the
+shared copies from `solutions.Coinduction` instead of importing an earlier
+chapter. (A chapter that still contains exercise holes cannot be imported
+without `--allow-unsolved-metas`, so the shared definitions live in the
+hole-free solutions module.) The site uses no standard library, so `interfaces`
+is set to `"none"`.
 
 ## What works
 
@@ -342,8 +356,9 @@ Recommended, not required:
 ## Repository layout
 
 ```text
-content/notes/           the chapter sources
-content/solutions/       Prelude (shared definitions and solutions)
+content/notes/           the notes chapter sources
+content/coinduction/     the coinduction chapter sources
+content/solutions/       shared definitions and solutions (Prelude, Coinduction)
 playground.config.json   site configuration
 scripts/                 content and runtime pipelines
 src/                     the SvelteKit app

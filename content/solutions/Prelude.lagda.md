@@ -8,6 +8,7 @@ later chapters can import them. Solution code for the exercises lives
 here as well.
 
 ```agda
+{-# OPTIONS --cubical-compatible #-}
 module solutions.Prelude where
 ```
 
