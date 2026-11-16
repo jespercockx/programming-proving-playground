@@ -3,7 +3,7 @@ title: Coinduction prelude
 ---
 
 This module collects the coinductive definitions that the later coinduction
-chapters share, in the same way that `solutions.Prelude` collects the
+chapters share, in the same way that `prelude.Prelude` collects the
 definitions shared between the notes chapters. The chapters themselves still
 define these types from scratch as part of the exposition; this module provides
 hole-free copies so that a later chapter can import what it needs without
@@ -11,9 +11,9 @@ importing an earlier chapter that contains exercise holes.
 
 ```agda
 {-# OPTIONS --guardedness --cubical-compatible #-}
-module solutions.Coinduction where
+module prelude.Coinduction where
 
-open import solutions.Prelude using
+open import prelude.Prelude using
   (Nat; zero; suc; List; []; _::_; _≡_; refl)
 
 _∘_ : {A B C : Set} → (B → C) → (A → B) → (A → C)

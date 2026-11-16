@@ -5,7 +5,7 @@ title: Equational reasoning in Agda
 ```agda
 module notes.EquationalReasoning where
 
-open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; true; false;
+open import prelude.Prelude using (Nat; zero; suc; _+_; Bool; true; false;
   not; List; []; _::_; _++_; map; length; id; _≡_; refl; sym; trans; cong;
   append-[]; append-assoc)
 ```

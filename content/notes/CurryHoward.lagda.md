@@ -5,7 +5,7 @@ title: The Curry–Howard correspondence
 ```agda
 module notes.CurryHoward where
 
-open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; true; false;
+open import prelude.Prelude using (Nat; zero; suc; _+_; Bool; true; false;
   []; _::_; length; _×_; _,_; Σ; id)
 ```
 

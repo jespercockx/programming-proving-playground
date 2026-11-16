@@ -8,7 +8,7 @@ The *delay monad* embeds potentially non-terminating computations in Agda:
 {-# OPTIONS --guardedness #-}
 module coinduction.case-studies.DelayMonad where
 
-open import solutions.Prelude using
+open import prelude.Prelude using
   (Nat; zero; suc; Either; left; right; _≡_; refl)
 ```
 

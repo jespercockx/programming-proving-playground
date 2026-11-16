@@ -6,10 +6,10 @@ title: Cubical bisimulation
 {-# OPTIONS --guardedness --cubical #-}
 module coinduction.CubicalBisimulation where
 
-open import solutions.Prelude using (Nat; zero; suc)
-open import solutions.Coinduction using (Stream; take; drop; _++_)
+open import prelude.Prelude using (Nat; zero; suc)
+open import prelude.Coinduction using (Stream; take; drop; _++_)
 open Stream
-open import coinduction.Cubical using (Path; reflP; congP; funExt)
+open import prelude.Cubical using (Path; reflP; congP; funExt)
 ```
 
 Cubical Agda is an extension of Agda with primitives from *cubical type

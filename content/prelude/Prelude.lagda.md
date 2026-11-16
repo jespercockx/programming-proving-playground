@@ -9,7 +9,7 @@ here as well.
 
 ```agda
 {-# OPTIONS --cubical-compatible #-}
-module solutions.Prelude where
+module prelude.Prelude where
 ```
 
 ## Natural numbers

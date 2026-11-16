@@ -5,7 +5,7 @@ title: Dependent types
 ```agda
 module notes.DependentTypes where
 
-open import solutions.Prelude using (Nat; zero; suc; _+_; Bool; not)
+open import prelude.Prelude using (Nat; zero; suc; _+_; Bool; not)
 ```
 
 Dependent types are types that can refer to --- or *depend on* ---

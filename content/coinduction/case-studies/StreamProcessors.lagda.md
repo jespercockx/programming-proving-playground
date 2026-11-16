@@ -9,9 +9,9 @@ of `B`s:
 {-# OPTIONS --guardedness #-}
 module coinduction.case-studies.StreamProcessors where
 
-open import solutions.Prelude using
+open import prelude.Prelude using
   (Nat; zero; suc; _+_; List; []; _::_; _≡_; refl)
-open import solutions.Coinduction using
+open import prelude.Coinduction using
   (Stream; take; nats; _~_; refl~)
 open Stream
 ```

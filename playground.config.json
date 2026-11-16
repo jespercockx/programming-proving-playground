@@ -7,7 +7,7 @@
   "groups": {
     "notes": "Programming and Proving in Agda",
     "coinduction": "Coinduction",
-    "solutions": "Solutions"
+    "prelude": "Prelude"
   },
   "order": {
     "notes": [
@@ -25,12 +25,12 @@
       "CubicalBisimulation",
       "DelayMonad",
       "StreamProcessors",
-      "FormalLanguages",
-      "Cubical"
+      "FormalLanguages"
     ],
-    "solutions": [
+    "prelude": [
       "Prelude",
-      "Coinduction"
+      "Coinduction",
+      "Cubical"
     ]
   },
   "runtime": {

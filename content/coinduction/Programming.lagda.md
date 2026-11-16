@@ -23,7 +23,7 @@ from the chapter *An introduction to Agda for Haskell programmers*.
 {-# OPTIONS --guardedness #-}
 module coinduction.Programming where
 
-open import solutions.Prelude using
+open import prelude.Prelude using
   (Nat; zero; suc; _+_; _*_; List; []; _::_; _×_; _,_; _≡_)
 
 variable

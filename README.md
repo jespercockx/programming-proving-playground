@@ -19,25 +19,24 @@ SvelteKit static site with the Agda runtime as a WASI worker.
 - `content/coinduction/` holds an independent three-part tutorial on
   coinduction. The first two parts are `Programming` and `Proving`, with part
   1's sized-types material split off into `SizedTypes` and part 2's cubical
-  material into `CubicalBisimulation` (`Cubical` holds the minimal path-type
-  definitions the latter imports); the third part lives in `case-studies/` as
-  `DelayMonad`, `StreamProcessors`, and `FormalLanguages`. Each declares
+  material into `CubicalBisimulation`; the third part lives in `case-studies/`
+  as `DelayMonad`, `StreamProcessors`, and `FormalLanguages`. Each declares
   `module coinduction.<Name>` (or `coinduction.case-studies.<Name>`).
-- `content/solutions/Prelude.lagda.md` collects the definitions shared between
-  the notes chapters together with their exercise solutions.
-- `content/solutions/Coinduction.lagda.md` holds the coinductive definitions
-  (`Stream`, `Colist`, `_~_`, …) that `Proving`, `CubicalBisimulation`, and the
-  case studies import. The exercises themselves stay as holes in the chapters.
+- `content/prelude/` holds the hole-free definitions that the chapters import:
+  `Prelude.lagda.md` collects the definitions shared between the notes chapters
+  together with their exercise solutions, `Coinduction.lagda.md` holds the
+  coinductive definitions (`Stream`, `Colist`, `_~_`, …), and `Cubical.lagda.md`
+  the minimal path-type definitions. They declare `module prelude.<Name>`.
 
-Both solutions modules are shown in the **Solutions** group and are imported
-with `open import solutions.<Name> using (…)`. `Intro` defines its own base
-types from scratch and imports nothing; the coinduction chapters likewise define
-their types from scratch for the exposition, but the later chapters import the
-shared copies from `solutions.Coinduction` instead of importing an earlier
-chapter. (A chapter that still contains exercise holes cannot be imported
-without `--allow-unsolved-metas`, so the shared definitions live in the
-hole-free solutions module.) The site uses no standard library, so `interfaces`
-is set to `"none"`.
+The shared modules are shown in the **Prelude** group and are imported with
+`open import prelude.<Name> using (…)`. `Intro` defines its own base types from
+scratch and imports nothing; the coinduction chapters likewise define their
+types from scratch for the exposition, but the later chapters import the shared
+copies from `prelude.Coinduction` instead of importing an earlier chapter. (A
+chapter that still contains exercise holes cannot be imported without
+`--allow-unsolved-metas`, so the shared definitions live in the hole-free
+prelude modules.) The site uses no standard library, so `interfaces` is set to
+`"none"`.
 
 ## What works
 
@@ -108,8 +107,8 @@ path inside the project archive has to match the `module … where` header you
 write. `modulePrefix` sets the directory the content is placed under:
 
 - This site sets `"modulePrefix": ""`, so `content/notes/Intro.lagda.md` declares
-  `module notes.Intro where` and `content/solutions/Prelude.lagda.md` declares
-  `module solutions.Prelude where`.
+  `module notes.Intro where` and `content/prelude/Prelude.lagda.md` declares
+  `module prelude.Prelude where`.
 - A project with modules named `mylib.Widget` would set `"modulePrefix": "mylib"`
   and place the file at `content/Widget.agda`.
 
@@ -358,7 +357,7 @@ Recommended, not required:
 ```text
 content/notes/           the notes chapter sources
 content/coinduction/     the coinduction chapter sources
-content/solutions/       shared definitions and solutions (Prelude, Coinduction)
+content/prelude/         shared definitions (Prelude, Coinduction, Cubical)
 playground.config.json   site configuration
 scripts/                 content and runtime pipelines
 src/                     the SvelteKit app

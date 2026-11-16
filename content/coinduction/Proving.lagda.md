@@ -10,10 +10,10 @@ from the chapter *Coinductive programming*.
 {-# OPTIONS --guardedness #-}
 module coinduction.Proving where
 
-open import solutions.Prelude using
+open import prelude.Prelude using
   (Nat; zero; suc; _+_; _*_; List; []; _::_; _≡_; refl; sym; trans; cong;
    ⊥; absurd)
-open import solutions.Coinduction using
+open import prelude.Coinduction using
   (Stream; take; drop; _++_; Colist; Colist'; fromList; fromStream; []; _::_)
 open Stream
 open Colist'

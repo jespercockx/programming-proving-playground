@@ -17,9 +17,9 @@ Coinductive formal languages in Agda:
 {-# OPTIONS --guardedness --sized-types #-}
 module coinduction.case-studies.FormalLanguages where
 
-open import solutions.Prelude using
+open import prelude.Prelude using
   (Bool; true; false; not; _&&_; _||_; if_then_else_; List; []; _::_; _≡_)
-open import solutions.Coinduction using (_∘_)
+open import prelude.Coinduction using (_∘_)
 ```
 
 ```agda

@@ -8,7 +8,7 @@ coinductive proving needs. It is a small stand-in for the path type of
 
 ```agda
 {-# OPTIONS --cubical #-}
-module coinduction.Cubical where
+module prelude.Cubical where
 
 open import Agda.Primitive.Cubical using (I; i0; i1) public
 open import Agda.Builtin.Cubical.Path using (PathP)

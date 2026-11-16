@@ -6,7 +6,7 @@ title: Sized types
 {-# OPTIONS --sized-types #-}
 module coinduction.SizedTypes where
 
-open import solutions.Prelude using (Nat; zero; suc; List; []; _::_)
+open import prelude.Prelude using (Nat; zero; suc; List; []; _::_)
 
 variable A B C : Set
 ```
