@@ -102,6 +102,13 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     chapters: Record<string, string[]>;
   }
 
+  interface ResetRequest {
+    title: string;
+    message: string;
+    confirmLabel: string;
+    run: () => Promise<void>;
+  }
+
   const controller = new AgdaController({
     agdaBuffers: {
       stdin: SPSC.allocateArrayBuffer(4096),
@@ -147,6 +154,8 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
   let scrollSyncOwner: "reader" | "editor" | null = null;
   let scrollSyncRelease: ReturnType<typeof setTimeout> | undefined;
   let chapterRequest = 0;
+  let resetConfirm = $state<ResetRequest | null>(null);
+  let resetBusy = $state(false);
 
   const contentChapters = $derived(
     contentManifest?.groups.flatMap((group) => group.chapters) ?? [],
@@ -450,7 +459,9 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
         event.stopPropagation();
         runCheck();
       } else if (event.key === "Escape") {
-        if (commandKind) {
+        if (resetConfirm) {
+          if (!resetBusy) resetConfirm = null;
+        } else if (commandKind) {
           commandKind = null;
           editor?.focus();
         }
@@ -790,18 +801,8 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
       const originalSource = await sourceResponse.text();
       if (request !== chapterRequest) return;
 
-      const storageKey = `agda-web-ide-beta:content:${chapter.id}`;
-      const source = localStorage.getItem(storageKey) ?? originalSource;
-      chapterMarkdown = source;
-      editor?.dispatch({
-        effects: sourceLanguageCompartment.reconfigure(
-          chapter.fileName.endsWith(".agda")
-            ? agdaSourceLanguage()
-            : literateAgdaLanguage(),
-        ),
-      });
-      controller.setDocument(source, chapter.modulePath, storageKey);
-      readerContent?.scrollTo({ top: 0 });
+      const source = localStorage.getItem(chapterStorageKey(chapter)) ?? originalSource;
+      applyChapterSource(chapter, source);
       if (controller.driveIsCreated)
         void runAction(() => ensureContentInterfaces(chapter));
     } catch (error) {
@@ -809,6 +810,24 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     } finally {
       if (request === chapterRequest) chapterLoading = false;
     }
+  }
+
+  function chapterStorageKey(chapter: ContentChapter) {
+    return `agda-web-ide-beta:content:${chapter.id}`;
+  }
+
+  // Show a chapter's source in the editor and remember it for the session.
+  function applyChapterSource(chapter: ContentChapter, source: string) {
+    chapterMarkdown = source;
+    editor?.dispatch({
+      effects: sourceLanguageCompartment.reconfigure(
+        chapter.fileName.endsWith(".agda")
+          ? agdaSourceLanguage()
+          : literateAgdaLanguage(),
+      ),
+    });
+    controller.setDocument(source, chapter.modulePath, chapterStorageKey(chapter));
+    readerContent?.scrollTo({ top: 0 });
   }
 
   function openPlayground() {
@@ -834,6 +853,79 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     if (localStorage.getItem(LS_DOC_KEY) !== null) return;
     if (editor.state.doc.toString() !== DEFAULT_SOURCE) return;
     controller.setDocument(source, "/Main.agda", LS_DOC_KEY);
+  }
+
+  // The pristine text of the playground document: the content config's
+  // playgroundSource when set, otherwise the built-in starter.
+  function playgroundOriginalSource() {
+    return contentManifest?.playgroundSource ?? DEFAULT_SOURCE;
+  }
+
+  async function fetchOriginalChapter(chapter: ContentChapter) {
+    const response = await fetch(asset(chapter.sourcePath));
+    if (!response.ok)
+      throw new Error(`Could not load the original ${chapter.name}`);
+    return response.text();
+  }
+
+  // Restore a single file to the content shipped with the site, discarding
+  // whatever the visitor saved locally.
+  async function resetChapter(chapter: ContentChapter) {
+    const original = await fetchOriginalChapter(chapter);
+    localStorage.setItem(chapterStorageKey(chapter), original);
+    if (workspaceMode === "content" && selectedChapterId === chapter.id) {
+      chapterRequest++;
+      applyChapterSource(chapter, original);
+    }
+  }
+
+  function resetPlayground() {
+    const original = playgroundOriginalSource();
+    localStorage.setItem(LS_DOC_KEY, original);
+    if (workspaceMode === "playground") {
+      editor?.dispatch({
+        effects: sourceLanguageCompartment.reconfigure(agdaSourceLanguage()),
+      });
+      controller.setDocument(original, "/Main.agda", LS_DOC_KEY);
+    }
+  }
+
+  async function resetAllFiles() {
+    const originals = await Promise.all(
+      contentChapters.map(async (chapter) => ({
+        chapter,
+        source: await fetchOriginalChapter(chapter),
+      })),
+    );
+    for (const { chapter, source } of originals)
+      localStorage.setItem(chapterStorageKey(chapter), source);
+    resetPlayground();
+    if (workspaceMode === "content" && selectedChapter) {
+      const restored = originals.find(
+        ({ chapter }) => chapter.id === selectedChapter!.id,
+      );
+      if (restored) {
+        chapterRequest++;
+        applyChapterSource(restored.chapter, restored.source);
+      }
+    }
+  }
+
+  function requestReset(request: ResetRequest) {
+    actionError = "";
+    resetConfirm = request;
+  }
+
+  async function confirmReset() {
+    const request = resetConfirm;
+    if (!request) return;
+    resetBusy = true;
+    try {
+      await runAction(request.run);
+    } finally {
+      resetBusy = false;
+      resetConfirm = null;
+    }
   }
 
   function focusResource(resource: ActiveResource) {
@@ -931,20 +1023,54 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
       >
     </aside>
     <aside class="explorer">
-      <div class="section-label">EXPLORER</div>
+      <div class="section-label">
+        <span>EXPLORER</span>
+        <button
+          class="reset-all"
+          onclick={() =>
+            requestReset({
+              title: "Reset all files?",
+              message:
+                "This replaces every file, including Main.agda, with the original content shipped with the site and discards all your edits.",
+              confirmLabel: "Reset all files",
+              run: resetAllFiles,
+            })}
+          disabled={isBusy || resetBusy}
+          title="Reset all files to their original content"
+          aria-label="Reset all files to their original content"
+          ><RotateCcw size={13} /></button
+        >
+      </div>
       <div class="tree-root open">
         <ChevronDown size={13} /><span>PLAYGROUND</span>
       </div>
-      <button
-        class:active={workspaceMode === "playground"}
-        class="file-row"
-        onclick={openPlayground}
-        disabled={isBusy}
-        ><FileCode size={15} /><span>Main.agda</span><span
-          class="dirty-dot"
-          title="Saved locally"
-        ></span></button
-      >
+      <div class:active={workspaceMode === "playground"} class="file-row">
+        <button
+          class="row-open"
+          onclick={openPlayground}
+          disabled={isBusy}
+          title="Main.agda"
+          ><FileCode size={15} /><span>Main.agda</span><span
+            class="dirty-dot"
+            title="Saved locally"
+          ></span></button
+        >
+        <button
+          class="row-reset"
+          onclick={() =>
+            requestReset({
+              title: "Reset Main.agda?",
+              message:
+                "This replaces the playground document with its original content and discards your edits.",
+              confirmLabel: "Reset file",
+              run: async () => resetPlayground(),
+            })}
+          disabled={isBusy || resetBusy}
+          title="Reset Main.agda to its original content"
+          aria-label="Reset Main.agda to its original content"
+          ><RotateCcw size={13} /></button
+        >
+      </div>
       {#if showContentTree}
         <button
           class:open={contentExpanded}
@@ -982,16 +1108,34 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
                 {/if}
                 {#if group.flat || expandedGroups[group.id]}
                   {#each group.chapters as chapter}
-                    <button
+                    <div
                       class:active={workspaceMode === "content" &&
                         selectedChapterId === chapter.id}
                       class="chapter-row"
-                      onclick={() => void openContentChapter(chapter)}
-                      disabled={isBusy}
-                      title={chapter.title}
                     >
-                      <FileText size={14} /><span>{chapter.fileName}</span>
-                    </button>
+                      <button
+                        class="row-open"
+                        onclick={() => void openContentChapter(chapter)}
+                        disabled={isBusy}
+                        title={chapter.title}
+                      >
+                        <FileText size={14} /><span>{chapter.fileName}</span>
+                      </button>
+                      <button
+                        class="row-reset"
+                        onclick={() =>
+                          requestReset({
+                            title: `Reset ${chapter.fileName}?`,
+                            message: `This replaces ${chapter.fileName} with the original content shipped with the site and discards your edits.`,
+                            confirmLabel: "Reset file",
+                            run: () => resetChapter(chapter),
+                          })}
+                        disabled={isBusy || resetBusy}
+                        title={`Reset ${chapter.fileName} to its original content`}
+                        aria-label={`Reset ${chapter.fileName} to its original content`}
+                        ><RotateCcw size={12} /></button
+                      >
+                    </div>
                   {/each}
                 {/if}
               {/each}
@@ -1264,6 +1408,35 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
         </div>{/if}
     </aside>
   </section>
+  {#if resetConfirm}
+    <div class="confirm-overlay" role="presentation">
+      <div
+        class="confirm-dialog"
+        role="alertdialog"
+        aria-modal="true"
+        aria-labelledby="confirm-title"
+      >
+        <div class="confirm-heading">
+          <TriangleAlert size={16} />
+          <strong id="confirm-title">{resetConfirm.title}</strong>
+        </div>
+        <p>{resetConfirm.message}</p>
+        <div class="confirm-actions">
+          <button
+            class="confirm-cancel"
+            onclick={() => (resetConfirm = null)}
+            disabled={resetBusy}>Cancel</button
+          >
+          <button
+            class="confirm-go"
+            onclick={() => void confirmReset()}
+            disabled={resetBusy}
+            >{resetBusy ? "Resetting…" : resetConfirm.confirmLabel}</button
+          >
+        </div>
+      </div>
+    </div>
+  {/if}
 </main>
 
 <style>
@@ -1397,7 +1570,8 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     height: 35px;
     display: flex;
     align-items: center;
-    padding: 0 12px;
+    justify-content: space-between;
+    padding: 0 8px 0 12px;
     font-size: 10px;
     letter-spacing: 0.09em;
   }
@@ -1424,11 +1598,8 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     height: 31px;
     display: flex;
     align-items: center;
-    gap: 7px;
     width: 100%;
-    padding: 0 11px 0 22px;
     color: #596057;
-    text-align: left;
     font-size: 12px;
   }
   .file-row.active {
@@ -1436,7 +1607,11 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     background: #d7ddd4;
     border-left: 3px solid var(--green);
   }
-  .file-row :global(svg) {
+  .file-row .row-open {
+    gap: 7px;
+    padding: 0 4px 0 22px;
+  }
+  .file-row .row-open :global(svg) {
     color: var(--green);
   }
   .content-tree {
@@ -1446,8 +1621,7 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     padding-bottom: 12px;
     border-top: 1px solid #d5d9d2;
   }
-  .tree-part,
-  .chapter-row {
+  .tree-part {
     width: 100%;
     display: flex;
     align-items: center;
@@ -1463,9 +1637,12 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     letter-spacing: 0.05em;
   }
   .chapter-row {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    text-align: left;
+    color: #596057;
     height: 29px;
-    gap: 6px;
-    padding: 0 8px 0 23px;
     font-size: 11px;
   }
   .chapter-row:hover {
@@ -1475,11 +1652,15 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     color: var(--green-dark);
     background: #d9e4dc;
   }
-  .chapter-row :global(svg) {
+  .chapter-row .row-open {
+    gap: 6px;
+    padding: 0 2px 0 23px;
+  }
+  .chapter-row .row-open :global(svg) {
     flex: none;
     color: #6d756b;
   }
-  .chapter-row span {
+  .chapter-row .row-open span {
     min-width: 0;
     overflow: hidden;
     text-overflow: ellipsis;
@@ -1502,6 +1683,36 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     margin-left: auto;
     border-radius: 50%;
     background: #90ad9d;
+  }
+  .row-open {
+    flex: 1;
+    min-width: 0;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    color: inherit;
+    text-align: left;
+    font-size: inherit;
+  }
+  .row-reset,
+  .reset-all {
+    flex: none;
+    display: grid;
+    place-items: center;
+    color: var(--faint);
+  }
+  .row-reset {
+    width: 26px;
+    height: 100%;
+  }
+  .reset-all {
+    width: 26px;
+    height: 24px;
+  }
+  .row-reset:not(:disabled):hover,
+  .reset-all:not(:disabled):hover {
+    color: var(--green-dark);
+    background: var(--green-soft);
   }
   .editor-pane {
     min-width: 0;
@@ -2139,6 +2350,63 @@ plus-zero (suc n) = cong suc {! plus-zero n !}
     display: grid;
     place-items: center;
     color: inherit;
+  }
+  .confirm-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 40;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(23, 26, 22, 0.42);
+  }
+  .confirm-dialog {
+    width: min(430px, 100%);
+    border: 1px solid var(--line-strong);
+    background: var(--surface);
+    padding: 16px 18px;
+  }
+  .confirm-heading {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--text);
+  }
+  .confirm-heading :global(svg) {
+    flex: none;
+    color: var(--amber);
+  }
+  .confirm-heading strong {
+    font-size: 13px;
+  }
+  .confirm-dialog p {
+    margin: 12px 0 0;
+    color: var(--muted);
+    font-size: 12px;
+    line-height: 1.5;
+  }
+  .confirm-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .confirm-actions button {
+    height: 30px;
+    padding: 0 12px;
+    border: 1px solid var(--line-strong);
+    font-size: 11px;
+  }
+  .confirm-cancel:not(:disabled):hover {
+    background: #e7eae3;
+  }
+  .confirm-go {
+    color: #fff;
+    background: var(--red);
+    border-color: var(--red);
+  }
+  .confirm-go:not(:disabled):hover {
+    background: #7f211e;
   }
   @media (max-width: 1080px) {
     .workspace {
